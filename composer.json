@@ -4,6 +4,7 @@
     "keywords": ["wordpress", "fastcgi"],
     "license": "MIT",
     "type": "wordpress-plugin",
+    "version": "1.0.3",
     "require": {
         "php": ">=5.5.9"
     }
