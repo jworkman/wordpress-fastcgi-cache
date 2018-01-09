@@ -1,0 +1,10 @@
+{
+    "name": "jworkman/wordpress-fastcgi-cache",
+    "description": "Quick tool utilities to manage a fastcgi cache enabled server",
+    "keywords": ["wordpress", "fastcgi"],
+    "license": "MIT",
+    "type": "project",
+    "require": {
+        "php": ">=5.5.9"
+    }
+}
