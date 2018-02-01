@@ -8,17 +8,19 @@ In order to setup Nginx to use fast cgi cache we must configure Nginx in a coupl
 
 So first lets make that directory on the server:
 
-	makedir -p /var/cache/nginxfastcgi
+	mkdir -p /var/cache/nginxfastcgi
 
 Also create a `global` directory in your nginx `etc` directory:
 	
 	mkdir /etc/nginx/global
 
-Make sure you set the ownership to whatever user your nginx user is running under.
+Make sure you set the ownership to whatever user your nginx user is running under. Run the following and replace `owner_name` with the username that nginx uses to run under:
+
+	chown -R owner_name:owner_name /var/cache/nginxfastcgi
 
 After that lets create a file called `/etc/nginx/global/wordpress_cache.conf` and place the below code inside of it. You can change it where you like, however be cautious of the `$fastcgi_skipcache` stuff. Also make sure to update your fast cgi socket file location to where php-fpm places its socket. 
 
-	```# example FastCGI cache exception rules
+	# example FastCGI cache exception rules
     set $fastcgi_skipcache 0;
     if ($http_cookie ~ "users_login_cookie") {
       set $fastcgi_skipcache 1;
@@ -49,6 +51,10 @@ After that lets create a file called `/etc/nginx/global/wordpress_cache.conf` an
     # Keep logging the requests to parse later (or to pass to firewall utilities such as fail2ban)
     location ~ /\. {
         deny all;
+    }
+
+    location /admin {
+        return 301 /wp/wp-admin;
     }
 
     # Deny access to any files with a .php extension in the uploads directory
@@ -85,7 +91,7 @@ After that lets create a file called `/etc/nginx/global/wordpress_cache.conf` an
             return 404;
         }
 
-	fastcgi_buffers 8 16k;
+		fastcgi_buffers 8 16k;
         fastcgi_buffer_size 32k;
 
         add_header X-Cache $upstream_cache_status;
@@ -100,11 +106,11 @@ After that lets create a file called `/etc/nginx/global/wordpress_cache.conf` an
         include fastcgi_params;
         fastcgi_param APP_ENV prod;
         fastcgi_read_timeout 600;
-    }```
+    }
 
 After creating your global wordpress cache configuration you will need to define your cache system in nginx by adding a file `/etc/nginx/global/cache.conf` and adding the following lines:
 
-	```fastcgi_cache_path /var/cache/nginxfastcgi levels=1:2 keys_zone=fastcgicache:5m inactive=5m max_size=64m;
+	fastcgi_cache_path /var/cache/nginxfastcgi levels=1:2 keys_zone=fastcgicache:5m inactive=5m max_size=64m;
 	fastcgi_cache_key $scheme$request_method$host$request_uri;
 	# note: can also use HTTP headers to form the cache key, e.g.
 	fastcgi_cache_lock on;
@@ -114,9 +120,18 @@ After creating your global wordpress cache configuration you will need to define
 
 	proxy_buffer_size   128k;
 	proxy_buffers   4 256k;
-	proxy_busy_buffers_size   256k;```
+	proxy_busy_buffers_size   256k;
 
 And finally after that file is created you must include it in the nginx configuration by adding the following line to `/etc/nginx/nginx.conf` below `client_max_body_size`:
 
 	include             /etc/nginx/global/cache.conf;
+
+After that you must replace your fast cgi block with the following under any wordpress site configuration: 
+
+	include 			global/wordpress_cache.conf;
+
+
+
+
+
 
