@@ -26,6 +26,22 @@ After that lets create a file called `/etc/nginx/global/wordpress_cache.conf` an
       set $fastcgi_skipcache 1;
     }
 
+    if ($request_method = POST) {
+        set $fastcgi_skipcache 1;
+    }
+
+    if ($query_string != "") {
+        set $fastcgi_skipcache 1;
+    }
+
+    if ($request_uri ~* "/wp-admin/|/xmlrpc.php|wp-.*.php|/feed/|index.php|sitemap(_index)?.xml") {
+        set $fastcgi_skipcache 1;
+    }
+
+    if ($http_cookie ~* "comment_author|wordpress_[a-f0-9]+|wp-postpass|wordpress_no_cache|wordpress_logged_in") {
+        set $fastcgi_skipcache 1;
+    }
+
     if ( $request_uri ~ "/wp/wp-login.php" ) {
       set $fastcgi_skipcache 1;
     }
