@@ -5,7 +5,7 @@ Description: Manages the FastCGI cache for the server.
 Plugin URI:  https://github.com/jworkman/wordpress-fastcgi-cache
 Author:      Justin Workman
 Author URI:  https://github.com/jworkman
-Version: 	 1.1.2
+Version: 	 1.1.3
 
 Wordpress FastCGI Cache is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -59,6 +59,6 @@ add_action('new_to_publish', 'clear_fastcgi_cache');
 add_action('draft_to_publish', 'clear_fastcgi_cache');
 add_action('pending_to_publish', 'clear_fastcgi_cache');
 add_action('wp_insert_post', 'clear_fastcgi_cache');
-function clear_fastcgi_cache($id) {
+function clear_fastcgi_cache(...$args) {
     exec('rm -rf /var/cache/nginxfastcgi/*');
 }
